@@ -1,10 +1,18 @@
-* {
+.pixel-text {
     font-family: 'Press Start 2P', monospace;
     font-size: 48px;
-    letter-spacing: 2px;
+    letter-spacing: 4px;
     text-shadow:
-        1px 1px 0 #744444,
-       -1px 1px 0 #744545,
-        1px -1px 0 #833d3d,
-       -1px -1px 0 #723f3f;
+        2px 2px 0 #744444,
+       -2px 2px 0 #744545,
+        2px -2px 0 #833d3d,
+       -2px -2px 0 #723f3f,
+        0px 2px 0 #744444,
+        2px 0px 0 #744444,
+       -2px 0px 0 #744545,
+        0px -2px 0 #833d3d;
+    image-rendering: pixelated;
+    text-align: center;
+    display: block;
+    margin: 0 auto;
 }
