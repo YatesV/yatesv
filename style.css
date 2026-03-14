@@ -1,15 +1,9 @@
-.pixel-text {
-font-family: 'PixelFont';
-  src: url('path/to/pixel-font.woff2') format('woff2');
+@font-face {
+  font-family: 'Pixelite';
+  src: url('fonts/Pixelite.ttf') format('truetype');
   font-display: swap;
 }
 
 .pixel-text {
-  font-family: 'PixelFont', monospace;
-  font-size: 16px;
-  line-height: 1.2;
-  letter-spacing: 0;
-  text-rendering: optimizeSpeed; /* Ensures sharp rendering */
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: none;
-}
+  font-family: 'Pixelite', monospace;
+}   
