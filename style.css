@@ -1,7 +1,7 @@
 body {
     font-family: Arial;
-    background: #111;
-    color: white;
+    background: #000000;
+    color: rgb(255, 255, 255);
     text-align: center;
     margin-top: 100px;
 }
@@ -9,4 +9,14 @@ body {
 button {
     padding: 10px 20px;
     font-size: 16px;
+}
+
+.pixel-text {
+    font-family: monospace;           /* ensures uniform spacing */
+    font-size: 24px;                   /* bigger = more retro feel */
+    letter-spacing: 2px;               /* optional, space out letters */
+    
+    /* Force pixelated rendering */
+    -webkit-font-smoothing: none;      /* Chrome, Safari */
+    -moz-osx-font-smoothing: grayscale; /* Firefox on macOS */
 }
