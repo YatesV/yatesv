@@ -21,8 +21,8 @@ button {
 
     /* 8-bit outline */
     text-shadow:
-        1px 1px 0 #000,
-       -1px 1px 0 #000,
-        1px -1px 0 #000,
-       -1px -1px 0 #000;
+        1px 1px 0 #744444,
+       -1px 1px 0 #744545,
+        1px -1px 0 #833d3d,
+       -1px -1px 0 #723f3f;
 }
