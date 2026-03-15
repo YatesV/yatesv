@@ -2,6 +2,9 @@ const typeText = document.querySelector('.type-text');
 const disclaimer = document.querySelector('.disclaimer');
 const buttonContainer = document.querySelector('.button-container');
 const enterButton = document.querySelector('.pixel-button');
+const terminalOverlay = document.querySelector('.terminal-overlay');
+const terminalOutput = document.querySelector('.terminal-output');
+const terminalWindow = document.querySelector('.terminal-window');
 
 if (typeText && disclaimer && enterButton) {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -109,25 +112,115 @@ if (typeText && disclaimer && enterButton) {
   addUnlockTrigger(document, 'keydown');
   addUnlockTrigger(document, 'touchstart');
 
+  const MAIN_URL = 'main.html';
   let hasOpenedDisclaimer = false;
-  const MAIN_URL = 'main.html'; // relative link to main site
+  const termLines = [
+    'booting retro shell ...',
+    'mount /home/yatesv/projects',
+    'loading pixel font',
+    'warming up audio drivers',
+    'connecting to indie-net ... ok',
+    'launching main site'
+  ];
 
+  function typeTerminal(lines, onDone) {
+    if (!terminalOverlay || !terminalOutput) {
+      onDone();
+      return;
+    }
+    terminalOverlay.classList.add('active');
+    terminalOutput.innerHTML = '';
+    const textSpan = document.createElement('span');
+    textSpan.className = 'terminal-text';
+    const caretSpan = document.createElement('span');
+    caretSpan.className = 'terminal-caret';
+    caretSpan.textContent = '█';
+    terminalOutput.append(textSpan, caretSpan);
+    let lineIndex = 0;
+    let charIndex = 0;
+    let typingTimer = null;
+
+    function updateCaretGlow() {
+      if (!terminalWindow) return;
+      const caretRect = caretSpan.getBoundingClientRect();
+      const windowRect = terminalWindow.getBoundingClientRect();
+      const x = ((caretRect.left + caretRect.width / 2) - windowRect.left) / windowRect.width;
+      const y = ((caretRect.top + caretRect.height / 2) - windowRect.top) / windowRect.height;
+      terminalWindow.style.setProperty('--caret-x', `${Math.max(0, Math.min(1, x)) * 100}%`);
+      terminalWindow.style.setProperty('--caret-y', `${Math.max(0, Math.min(1, y)) * 100}%`);
+    }
+
+    function getDelay(lastChar, isNewLine) {
+      if (isNewLine) return 140 + Math.random() * 60;
+      if (lastChar === '.' || lastChar === ':') return 120 + Math.random() * 40;
+      if (lastChar === ' ') return 18 + Math.random() * 18;
+      return 24 + Math.random() * 18;
+    }
+
+    function nextChar() {
+      if (lineIndex >= lines.length) {
+        setTimeout(onDone, 350);
+        stopTypingSound();
+        return;
+      }
+      const line = lines[lineIndex];
+      let delay = 30;
+      if (charIndex < line.length) {
+        const ch = line[charIndex];
+        textSpan.textContent += ch;
+        if (ch !== ' ') playTypeTick();
+        charIndex += 1;
+        delay = getDelay(ch, false);
+      } else {
+        textSpan.textContent += '\n';
+        lineIndex += 1;
+        charIndex = 0;
+        delay = getDelay('', true);
+      }
+      updateCaretGlow();
+      typingTimer = setTimeout(nextChar, delay);
+    }
+
+    function bindTerminalParallax() {
+      if (!terminalOverlay || !terminalWindow) return;
+      terminalOverlay.addEventListener('pointermove', (event) => {
+        const rect = terminalWindow.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        const tiltX = (0.5 - y) * 6;
+        const tiltY = (x - 0.5) * 8;
+        terminalWindow.style.setProperty('--term-tilt-x', `${tiltX}deg`);
+        terminalWindow.style.setProperty('--term-tilt-y', `${tiltY}deg`);
+      });
+      terminalOverlay.addEventListener('pointerleave', () => {
+        terminalWindow.style.setProperty('--term-tilt-x', '0deg');
+        terminalWindow.style.setProperty('--term-tilt-y', '0deg');
+      });
+    }
+
+    unlockAudio();
+    bindTerminalParallax();
+    nextChar();
+  }
+
+  let isLaunching = false;
   enterButton.addEventListener('click', (event) => {
+    event.preventDefault();
     if (!hasOpenedDisclaimer) {
-      event.preventDefault();
       hasOpenedDisclaimer = true;
       disclaimer.classList.add('open');
       unlockAudio();
-      // retrigger typing animation by forcing reflow if already typed
       typeText.style.animation = 'none';
       // force reflow
       // eslint-disable-next-line no-unused-expressions
       typeText.offsetHeight;
       typeText.style.animation = '';
-      // start sound immediately; neonTyping will also start it
-      startTypingSound();
-    } else {
-      window.location.href = MAIN_URL;
+      return;
     }
+    if (isLaunching) return;
+    isLaunching = true;
+    typeTerminal(termLines, () => {
+      window.location.href = MAIN_URL;
+    });
   });
 }
